@@ -1,0 +1,26 @@
+# Virtual environment - never commit this
+venv/
+.venv/
+env/
+.secret_key
+
+# pip bootstrap - never commit this
+get-pip.py
+
+# Python cruft
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Environment / secrets
+.env
+*.env
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log

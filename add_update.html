@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Add Update – sugar.relax{% endblock %}
+
+{% block layout %}
+{% set active = 'add_update' %}
+{% include "_emp_sidebar.html" %}
+
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">Add Work Update</div>
+      <div class="page-sub">Log what you're working on</div>
+    </div>
+
+    <span id="progress-timer" class="ok">Loading timer…</span>
+  </div>
+
+  <div class="card" style="max-width:680px;">
+
+    <form method="POST" action="/add-update" enctype="multipart/form-data">
+
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+      <div class="field">
+        <label>What did you work on?</label>
+
+        <textarea
+          name="work_update"
+          rows="6"
+          placeholder="Describe your progress, tasks completed, blockers…"
+          required></textarea>
+      </div>
+
+      <div class="field">
+        <label>Upload Images / Files</label>
+
+        <input
+          type="file"
+          name="attachments"
+          multiple
+          accept=".png,.jpg,.jpeg,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt">
+
+        <small style="color:var(--muted);">
+          Allowed: images, PDF, Word, Excel, TXT. Max 10 MB.
+        </small>
+      </div>
+
+      <button class="btn">
+        <i class="bi bi-send"></i>
+        Submit Update
+      </button>
+
+    </form>
+
+  </div>
+
+</main>
+{% endblock %}

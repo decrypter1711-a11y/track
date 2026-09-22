@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}My Attendance – sugar.relax{% endblock %}
+{% block head %}<meta http-equiv="refresh" content="60">{% endblock %}
+{% block layout %}
+{% set active = 'attendance' %}
+{% include "_emp_sidebar.html" %}
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">My Attendance</div>
+      <div class="page-sub">Your full check-in / check-out history</div>
+    </div>
+    <span id="progress-timer" class="ok">Loading timer…</span>
+  </div>
+  <div class="card">
+    {% if attendance %}
+    <table>
+      <thead><tr><th>Date</th><th>Status</th><th>Check In</th><th>Check Out</th><th>Hours</th></tr></thead>
+      <tbody>
+      {% for r in attendance %}
+        <tr>
+          <td>{{ r.date }}</td>
+          <td>
+            {% if r.status == 'Present' %}<span class="pill pill-green">Present</span>
+            {% elif r.status == 'Half Day' %}<span class="pill pill-amber">Half Day</span>
+            {% else %}<span class="pill pill-gray">{{ r.status }}</span>{% endif %}
+          </td>
+          <td>{{ r.check_in }}</td>
+          <td>{{ r.check_out }}</td>
+          <td>{{ r.hours }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p style="color:var(--muted);text-align:center;padding:30px;">No attendance records yet. Check in from your dashboard.</p>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

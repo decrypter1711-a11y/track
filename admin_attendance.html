@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Attendance Report – sugar.relax{% endblock %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+{% block layout %}
+{% set active = 'attendance' %}
+{% include "_admin_sidebar.html" %}
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Attendance Report</div>
+      <div class="page-sub">All employees</div>
+    </div>
+  </div>
+
+  <div class="grid grid-4" style="margin-bottom:18px;">
+    <div class="card stat"><div class="stat-label">Total Records</div><div class="stat-value">{{ total_records }}</div></div>
+    <div class="card stat"><div class="stat-label">Present</div><div class="stat-value" style="color:var(--success);">{{ present_count }}</div></div>
+    <div class="card stat"><div class="stat-label">Half Day</div><div class="stat-value" style="color:var(--warning);">{{ half_day_count }}</div></div>
+    <div class="card stat"><div class="stat-label">Pending Checkout (today)</div><div class="stat-value" style="color:var(--danger);">{{ pending_checkout }}</div></div>
+  </div>
+
+  <div class="grid grid-2" style="margin-bottom:18px;">
+    <div class="card">
+      <h3 style="margin-bottom:14px;">Filter</h3>
+      <form method="GET" action="/admin-attendance">
+        <div class="field"><label>Search by name</label><input type="text" name="search" placeholder="Display name"></div>
+        <div class="field"><label>Date</label><input type="date" name="date"></div>
+        <button class="btn"><i class="bi bi-funnel"></i> Apply</button>
+        <a href="/admin-attendance" class="btn btn-ghost">Reset</a>
+      </form>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:14px;">Status Breakdown</h3>
+      <canvas id="statusChart" height="150"></canvas>
+    </div>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Employee</th><th>Username</th><th>Date</th><th>Status</th><th>Check In</th><th>Check Out</th><th>Hours</th></tr></thead>
+      <tbody>
+      {% for r in attendance %}
+        <tr>
+          <td><b>{{ r.display_name }}</b></td>
+          <td>@{{ r.username }}</td>
+          <td>{{ r.date }}</td>
+          <td>
+            {% if r.status == 'Present' %}<span class="pill pill-green">Present</span>
+            {% elif r.status == 'Half Day' %}<span class="pill pill-amber">Half Day</span>
+            {% else %}<span class="pill pill-gray">{{ r.status }}</span>{% endif %}
+          </td>
+          <td>{{ r.check_in }}</td>
+          <td>{{ r.check_out }}</td>
+          <td>{{ r.hours }}</td>
+        </tr>
+      {% endfor %}
+      {% if not attendance %}<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px;">No records found.</td></tr>{% endif %}
+      </tbody>
+    </table>
+  </div>
+</main>
+{% endblock %}
+{% block scripts %}
+<script>
+  (function(){
+    var ctx = document.getElementById('statusChart');
+    if(!ctx) return;
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Present','Half Day','Pending Checkout'],
+        datasets: [{
+          data: [{{ present_count }}, {{ half_day_count }}, {{ pending_checkout }}],
+          backgroundColor: ['#16a34a','#d97706','#dc2626']
+        }]
+      },
+      options: { plugins: { legend: { position: 'bottom' } } }
+    });
+  })();
+</script>
+{% endblock %}

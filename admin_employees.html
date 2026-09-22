@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Employees – sugar.relax{% endblock %}
+{% block layout %}
+{% set active = 'employees' %}
+{% include "_admin_sidebar.html" %}
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Employees</div>
+      <div class="page-sub">Live status, today's activity &amp; update exports</div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <a href="/admin/add-employee" class="btn btn-ghost"><i class="bi bi-person-plus"></i> Add</a>
+      <a href="/admin/download-updates-all" class="btn"><i class="bi bi-download"></i> Download all (.zip)</a>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
+  {% endwith %}
+
+  <div class="card" style="overflow-x:auto;">
+    <table>
+      <thead><tr>
+        <th>Status</th><th>Display Name</th><th>Username</th><th>Email</th>
+        <th>Active Today</th><th>Idle Today</th><th>Away from app</th><th>Idle Count</th>
+        <th>Progress</th><th>Last Active</th><th>Export</th><th>Manage</th>
+      </tr></thead>
+      <tbody>
+      {% for e in employees %}
+        <tr {% if not e.online and e.mins_since_input is not none and e.mins_since_input < 480 %}style="background:#fff5f5;"{% endif %}>
+          <td>
+            {% if e.online %}<span class="dot on"></span>Online
+            {% elif e.mins_since_input is not none and e.mins_since_input < 480 %}<span class="pill pill-red">Inactive {{ e.mins_since_input }}m</span>
+            {% else %}<span class="dot off"></span>Offline{% endif %}
+          </td>
+          <td><b>{{ e.display_name }}</b></td>
+          <td>@{{ e.username }}</td>
+          <td>{{ e.email }}</td>
+          <td>{{ e.active_today }}</td>
+          <td {% if e.idle_events %}style="color:#b91c1c;font-weight:700;"{% endif %}>{{ e.idle_today }}{% if e.idle_events %} <span class="pill pill-red">×{{ e.idle_events }}</span>{% endif %}</td>
+          <td>{{ e.away_today }}{% if e.away_events %} <span class="pill pill-amber">×{{ e.away_events }}</span>{% endif %}</td>
+          <td>{{ e.idle_events }}</td>
+          <td>
+            {% if e.update_overdue %}<span class="pill pill-red">Overdue</span>
+            {% else %}<span class="pill pill-green">On track</span>{% endif %}
+          </td>
+          <td style="white-space:nowrap;">{{ e.last_active }}</td>
+          <td>
+            <a href="/admin/download-updates/{{ e.id }}" class="btn btn-ghost btn-sm" title="Download {{ e.display_name }}'s updates ({{ e.update_count }})">
+              <i class="bi bi-filetype-csv"></i> CSV
+            </a>
+          </td>
+          <td>
+            <a href="/admin/manage/{{ e.id }}" class="btn btn-sm" title="Edit updates, activity &amp; PDF export">
+              <i class="bi bi-pencil-square"></i> Manage
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+      {% if not employees %}
+        <tr><td colspan="12" style="text-align:center;color:var(--muted);padding:30px;">No employees yet.</td></tr>
+      {% endif %}
+      </tbody>
+    </table>
+  </div>
+  <p class="page-sub" style="margin-top:12px;">
+    "Active Today" / "Idle Today" come from the employee's live browser heartbeat
+    (refreshes every 30s). "Idle Count" is how many times they went idle (no mouse/keyboard for {{ idle_threshold }}s+).
+  </p>
+</main>
+{% endblock %}

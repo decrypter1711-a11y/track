@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard – sugar.relax{% endblock %}
+
+{% block head %}
+<meta http-equiv="refresh" content="30">
+{% endblock %}
+
+{% block layout %}
+{% set active = 'dashboard' %}
+{% include "_admin_sidebar.html" %}
+
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">Admin Dashboard</div>
+      <div class="page-sub">Company-wide overview · auto-refreshes every 30 seconds</div>
+    </div>
+
+    <a href="/admin/download-updates-all" class="btn">
+      <i class="bi bi-download"></i>
+      Download all updates (.zip)
+    </a>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for m in messages %}
+        <div class="flash">{{ m }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="grid grid-4" style="margin-bottom:18px;">
+
+    <div class="card stat">
+      <div style="display:flex;justify-content:space-between;">
+        <div>
+          <div class="stat-label">Employees</div>
+          <div class="stat-value">{{ total_employees }}</div>
+        </div>
+        <i class="bi bi-people stat-ico"></i>
+      </div>
+    </div>
+
+    <div class="card stat">
+      <div style="display:flex;justify-content:space-between;">
+        <div>
+          <div class="stat-label">Online Now</div>
+          <div class="stat-value" style="color:var(--success);">{{ online_count }}</div>
+        </div>
+        <i class="bi bi-broadcast stat-ico" style="color:var(--success);"></i>
+      </div>
+    </div>
+
+    <div class="card stat">
+      <div style="display:flex;justify-content:space-between;">
+        <div>
+          <div class="stat-label">Total Updates</div>
+          <div class="stat-value">{{ total_updates }}</div>
+        </div>
+        <i class="bi bi-journal-text stat-ico"></i>
+      </div>
+    </div>
+
+    <div class="card stat">
+      <div style="display:flex;justify-content:space-between;">
+        <div>
+          <div class="stat-label">Blocked IPs</div>
+          <div class="stat-value" style="color:var(--danger);">{{ blocked_count }}</div>
+        </div>
+        <i class="bi bi-shield-lock stat-ico" style="color:var(--danger);"></i>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3>Recent Updates</h3>
+      <a href="/admin-employees" class="btn btn-ghost btn-sm">
+        Per-employee exports →
+      </a>
+    </div>
+
+    {% if updates %}
+
+      <table>
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Employee</th>
+            <th>Username</th>
+            <th>Update</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for u in updates %}
+            <tr>
+              <td style="white-space:nowrap;">{{ u.date_str }}</td>
+
+              <td>
+                <b>{{ u.display_name }}</b>
+              </td>
+
+              <td>
+                @{{ u.username }}
+              </td>
+
+              <td>
+                <div style="font-size:14px;line-height:1.5;">
+                  {{ u.work_update }}
+                </div>
+
+                {% if u.attachments %}
+
+                  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+
+                    {% for file in u.attachments %}
+
+                      {% if file.type in ['png', 'jpg', 'jpeg', 'gif'] %}
+
+                        <a href="{{ url_for('static', filename=file.path) }}"
+                           target="_blank">
+
+                          <img
+                            src="{{ url_for('static', filename=file.path) }}"
+                            alt="{{ file.filename }}"
+                            style="
+                              width:90px;
+                              height:65px;
+                              object-fit:cover;
+                              border-radius:8px;
+                              border:1px solid var(--border);
+                            ">
+
+                        </a>
+
+                      {% else %}
+
+                        <a
+                          href="{{ url_for('static', filename=file.path) }}"
+                          target="_blank"
+                          class="pill pill-gray"
+                          style="text-decoration:none;">
+
+                          <i class="bi bi-paperclip"></i>
+                          {{ file.filename }}
+
+                        </a>
+
+                      {% endif %}
+
+                    {% endfor %}
+
+                  </div>
+
+                {% endif %}
+
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    {% else %}
+
+      <p style="color:var(--muted);text-align:center;padding:30px;">
+        No updates submitted yet.
+      </p>
+
+    {% endif %}
+
+  </div>
+
+</main>
+{% endblock %}

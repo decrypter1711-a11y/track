@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Register – sugar.relax{% endblock %}
+{% block head %}
+<style>
+  body { display: flex; align-items: center; justify-content: center; }
+  .auth { display: flex; width: 920px; max-width: 96vw; border-radius: 20px; overflow: hidden;
+          box-shadow: 0 20px 60px rgba(26,86,219,.15); background:#fff; }
+  .auth-left { flex: 1; background: linear-gradient(140deg, #1a3c6e 0%, #1a56db 100%); color:#fff;
+               display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 40px; }
+  .auth-left .bi { font-size: 56px; margin-bottom: 16px; }
+  .auth-left h1 { font-size: 28px; font-weight: 800; }
+  .auth-left p { opacity:.75; margin-top:8px; font-size:14px; text-align:center; }
+  .auth-right { flex: 1.2; padding: 40px 44px; }
+  .auth-right h2 { font-size: 22px; margin-bottom: 4px; }
+  .auth-right .sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .auth-foot { margin-top: 14px; font-size: 13px; color: var(--muted); text-align:center; }
+  @media(max-width:760px){ .auth-left{ display:none; } }
+</style>
+{% endblock %}
+{% block layout %}
+<div class="auth">
+  <div class="auth-left">
+    <img src="{{ url_for('static', filename='images/sugarrelax-logo.png') }}" alt="sugar.relax" style="width:120px;margin-bottom:14px;">
+    <h1>Join sugar.relax</h1>
+    <p>Create your employee account</p>
+  </div>
+  <div class="auth-right">
+    <h2>Create account</h2>
+    <div class="sub">Your username is unique. Your display name can match a colleague's real name.</div>
+    {% if error %}<div class="errbox">{{ error }}</div>{% endif %}
+    <form method="POST" action="/register">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Username (unique login)</label>
+          <input type="text" name="username" placeholder="e.g. arun.k02" required>
+          <div class="hint">3–30 chars · a–z, 0–9, "_" or "."</div>
+        </div>
+        <div class="field">
+          <label>Display name (real name)</label>
+          <input type="text" name="display_name" placeholder="e.g. Arun Kumar" required>
+          <div class="hint">Shown to admins. Duplicates allowed.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Email (unique)</label>
+        <input type="email" name="email" placeholder="you@company.com" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="at least 6 characters" required>
+      </div>
+      <button class="btn" style="width:100%;justify-content:center;">Create Account</button>
+    </form>
+    <div class="auth-foot">Already have an account? <a href="/">Sign in</a></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+<aside class="sidebar emp">
+  <div class="sidebar-brand">
+    <img src="{{ url_for('static', filename='images/sugarrelax-logo.png') }}" alt="sugar.relax" class="brand-logo">
+    <div class="brand-name">sugar.relax</div>
+    <div class="brand-sub">EMPLOYEE PORTAL</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="/dashboard" class="nav-item {{ 'active' if active=='dashboard' }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    <a href="/attendance" class="nav-item {{ 'active' if active=='attendance' }}"><i class="bi bi-calendar-check"></i> My Attendance</a>
+    <div class="nav-label">Work</div>
+    <a href="/add-update" class="nav-item {{ 'active' if active=='add_update' }}"><i class="bi bi-plus-square"></i> Add Update</a>
+    <a href="/updates" class="nav-item {{ 'active' if active=='updates' }}"><i class="bi bi-journal-text"></i> My Updates</a>
+  </nav>
+  <div class="sidebar-foot">
+    <a href="/logout" class="nav-item"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </div>
+</aside>

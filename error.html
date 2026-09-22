@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} – sugar.relax{% endblock %}
+{% block head %}
+<style>
+  body { display:flex; align-items:center; justify-content:center; }
+  .err { text-align:center; max-width: 420px; padding: 40px; }
+  .err .code { font-size: 80px; font-weight: 800; color: var(--blue); line-height:1; }
+  .err h2 { margin: 12px 0 6px; }
+  .err p { color: var(--muted); margin-bottom: 20px; }
+</style>
+{% endblock %}
+{% block layout %}
+<div class="err">
+  <div class="code">{{ code }}</div>
+  <h2>{{ "Access Denied" if code==403 else "Error" }}</h2>
+  <p>{{ msg }}</p>
+  <a href="/" class="btn">Return Home</a>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Employee Login – sugar.relax{% endblock %}
+{% block head %}
+<style>
+  body { display: flex; align-items: center; justify-content: center; }
+  .auth { display: flex; width: 900px; max-width: 96vw; min-height: 520px; border-radius: 20px;
+          overflow: hidden; box-shadow: 0 20px 60px rgba(26,86,219,.15); background:#fff; }
+  .auth-left { flex: 1; background: linear-gradient(140deg, #1a3c6e 0%, #1a56db 100%); color:#fff;
+               display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 40px; position:relative; }
+  .auth-left .bi { font-size: 56px; margin-bottom: 16px; }
+  .auth-left h1 { font-size: 28px; font-weight: 800; }
+  .auth-left p { opacity:.75; margin-top:8px; font-size:14px; text-align:center; }
+  .auth-right { flex: 1; padding: 48px 44px; display:flex; flex-direction:column; justify-content:center; }
+  .auth-right h2 { font-size: 22px; margin-bottom: 4px; }
+  .auth-right .sub { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+  .auth-foot { margin-top: 16px; font-size: 13px; color: var(--muted); text-align:center; }
+  @media(max-width:760px){ .auth-left{ display:none; } }
+</style>
+{% endblock %}
+{% block layout %}
+<div class="auth">
+  <div class="auth-left">
+    <img src="{{ url_for('static', filename='images/sugarrelax-logo.png') }}" alt="sugar.relax" style="width:120px;margin-bottom:14px;">
+    <h1>sugar.relax</h1>
+    <p>Employee attendance &amp; work tracking</p>
+  </div>
+  <div class="auth-right">
+    <h2>Welcome back</h2>
+    <div class="sub">Sign in to your employee account</div>
+    {% if error %}<div class="errbox">{{ error }}</div>{% endif %}
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+    <form method="POST" action="/login">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="your unique username" required autofocus>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button class="btn" style="width:100%;justify-content:center;">Sign In</button>
+    </form>
+    <div class="auth-foot">
+      <a href="/admin">Admin</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

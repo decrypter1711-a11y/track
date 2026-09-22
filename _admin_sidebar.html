@@ -1,0 +1,22 @@
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="{{ url_for('static', filename='images/sugarrelax-logo.png') }}" alt="sugar.relax" class="brand-logo">
+    <div class="brand-name">sugar.relax</div>
+    <div class="brand-sub">CONTROL CONSOLE</div>
+    <span class="admin-tag">ADMIN</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Overview</div>
+    <a href="/admin-dashboard" class="nav-item {{ 'active' if active=='dashboard' }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/admin/live-monitor" class="nav-item {{ 'active' if active=='live' }}"><i class="bi bi-broadcast-pin"></i> Live Monitor</a>
+    <a href="/admin-employees" class="nav-item {{ 'active' if active=='employees' }}"><i class="bi bi-people"></i> Employees</a>
+    <a href="/admin-attendance" class="nav-item {{ 'active' if active=='attendance' }}"><i class="bi bi-calendar-week"></i> Attendance</a>
+    <a href="/admin/login-history" class="nav-item {{ 'active' if active=='logins' }}"><i class="bi bi-clock-history"></i> Login History</a>
+    <div class="nav-label">Manage</div>
+    <a href="/admin/add-employee" class="nav-item {{ 'active' if active=='add_employee' }}"><i class="bi bi-person-plus"></i> Add Employee</a>
+    <a href="/admin-blocked" class="nav-item {{ 'active' if active=='blocked' }}"><i class="bi bi-shield-lock"></i> Blocked IPs</a>
+  </nav>
+  <div class="sidebar-foot">
+    <a href="/admin-logout" class="nav-item"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </div>
+</aside>

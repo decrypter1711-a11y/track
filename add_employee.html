@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Add Employee – sugar.relax{% endblock %}
+{% block layout %}
+{% set active = 'add_employee' %}
+{% include "_admin_sidebar.html" %}
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Add Employee</div>
+      <div class="page-sub">Create a new employee account</div>
+    </div>
+  </div>
+  <div class="card" style="max-width:640px;">
+    {% if error %}<div class="errbox">{{ error }}</div>{% endif %}
+    <form method="POST" action="/admin/add-employee">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Username (unique login)</label>
+          <input type="text" name="username" placeholder="e.g. arun.k02" required>
+          <div class="hint">3–30 chars · a–z, 0–9, "_" or "."</div>
+        </div>
+        <div class="field">
+          <label>Display name (real name)</label>
+          <input type="text" name="display_name" placeholder="e.g. Arun Kumar" required>
+          <div class="hint">Duplicates allowed.</div>
+        </div>
+      </div>
+      <div class="field"><label>Email (unique)</label><input type="email" name="email" required></div>
+      <div class="field"><label>Password</label><input type="password" name="password" required></div>
+      <button class="btn"><i class="bi bi-person-plus"></i> Create Employee</button>
+    </form>
+  </div>
+</main>
+{% endblock %}

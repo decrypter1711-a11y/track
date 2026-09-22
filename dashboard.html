@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard – sugar.relax{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block layout %}
+{% set active = 'dashboard' %}
+{% include "_emp_sidebar.html" %}
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Hi, {{ name }} 👋</div>
+      <div class="page-sub">@{{ username }} · here's your day at a glance</div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span id="live-dot" style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--success);display:inline-block;animation:pulse 2s infinite;"></span>
+        Live
+      </span>
+
+      <span id="progress-timer" class="ok">Loading timer…</span>
+    </div>
+  </div>
+
+  <style>
+    @keyframes pulse {
+      0%,100% { opacity:1; }
+      50% { opacity:.3; }
+    }
+  </style>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for m in messages %}
+        <div class="flash">{{ m }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="grid grid-4" style="margin-bottom:18px;">
+    <div class="card stat">
+      <div style="display:flex;justify-content:space-between;align-items:start;">
+        <div>
+          <div class="stat-label">Today's Status</div>
+          <div class="stat-value" id="stat-status" style="font-size:20px;">{{ today_status }}</div>
+        </div>
+        <i class="bi bi-calendar-check stat-ico"></i>
+      </div>
+    </div>
+
+    <div class="card stat">
+      <div style="display:flex;justify-content:space-between;align-items:start;">
+        <div>
+          <div class="stat-label">Hours Worked</div>
+          <div class="stat-value" id="stat-hours">{{ hours_worked }}</div>
+        </div>
+        <i class="bi bi-clock-history stat-ico"></i>
+      </div>
+    </div>
+
+    <div class="card stat">
+      <div style="display:flex;justify-content:space-between;align-items:start;">
+        <div>
+          <div class="stat-label">Total Updates</div>
+          <div class="stat-value" id="stat-updates">{{ total_updates }}</div>
+        </div>
+        <i class="bi bi-journal-text stat-ico"></i>
+      </div>
+    </div>
+
+    <div class="card stat">
+      <div style="display:flex;justify-content:space-between;align-items:start;">
+        <div>
+          <div class="stat-label">Days Recorded</div>
+          <div class="stat-value" id="stat-days">{{ total_attendance }}</div>
+        </div>
+        <i class="bi bi-bar-chart stat-ico"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3 style="margin-bottom:14px;">Attendance</h3>
+
+      <div style="display:flex;gap:30px;margin-bottom:18px;">
+        <div>
+          <div class="stat-label">Check In</div>
+          <div style="font-size:22px;font-weight:800;" id="stat-checkin">{{ check_in_time }}</div>
+        </div>
+
+        <div>
+          <div class="stat-label">Check Out</div>
+          <div style="font-size:22px;font-weight:800;" id="stat-checkout">{{ check_out_time }}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <form method="POST" action="/check-in">
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+          <button class="btn btn-success">
+            <i class="bi bi-box-arrow-in-right"></i>
+            Check In
+          </button>
+        </form>
+
+        <form method="POST" action="/check-out">
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+          <button class="btn btn-danger">
+            <i class="bi bi-box-arrow-right"></i>
+            Check Out
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px;">Progress Updates</h3>
+
+      <p style="color:var(--muted);font-size:14px;margin-bottom:16px;">
+        You're expected to post a progress update every <b>2 hours</b>.
+        Your live timer is shown at the top of the page; this window will
+        also track your activity and idle time while you're signed in.
+      </p>
+
+      <a href="/add-update" class="btn">
+        <i class="bi bi-plus-square"></i>
+        Post an update now
+      </a>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  function refresh() {
+    fetch("/dashboard-stats", {
+      headers: {
+        "X-CSRFToken": window.ET_CONFIG && window.ET_CONFIG.csrf || ""
+      }
+    })
+    .then(function (r) {
+      return r.json();
+    })
+    .then(function (d) {
+      document.getElementById("stat-status").textContent = d.today_status;
+      document.getElementById("stat-hours").textContent = d.hours_worked;
+      document.getElementById("stat-updates").textContent = d.total_updates;
+      document.getElementById("stat-days").textContent = d.total_attendance;
+      document.getElementById("stat-checkin").textContent = d.check_in_time;
+      document.getElementById("stat-checkout").textContent = d.check_out_time;
+    })
+    .catch(function () {});
+  }
+
+  setInterval(refresh, 60000);
+})();
+</script>
+{% endblock %}

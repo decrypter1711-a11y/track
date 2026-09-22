@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Login History – sugar.relax{% endblock %}
+{% block layout %}
+{% set active = 'logins' %}
+{% include "_admin_sidebar.html" %}
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Login History</div>
+      <div class="page-sub">Latest 500 login / logout events</div>
+    </div>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    {% if events %}
+    <table>
+      <thead><tr><th>When</th><th>Event</th><th>Employee</th><th>Username</th><th>IP</th><th>User-Agent</th></tr></thead>
+      <tbody>
+      {% for e in events %}
+        <tr>
+          <td style="white-space:nowrap;">{{ e.when }}</td>
+          <td>
+            {% if e.event == 'login' %}<span class="pill pill-green"><i class="bi bi-box-arrow-in-right"></i> Login</span>
+            {% else %}<span class="pill pill-gray"><i class="bi bi-box-arrow-right"></i> Logout</span>{% endif %}
+          </td>
+          <td><b>{{ e.display_name }}</b></td>
+          <td>@{{ e.username }}</td>
+          <td><code>{{ e.ip }}</code></td>
+          <td style="font-size:12px;color:var(--muted);">{{ e.user_agent }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color:var(--muted);text-align:center;padding:30px;">No login events yet.</p>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Live Monitor – sugar.relax{% endblock %}
+{% block head %}
+<meta http-equiv="refresh" content="30">
+<style>
+  .panel { margin-bottom: 22px; }
+  .panel h3 { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .count-pill { background:#eef2fb; color:var(--blue); padding:2px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+  .inactive-row { background:#fff5f5 !important; }
+  .inactive-row td { color: #b91c1c; }
+  .red-pill { background:#fee2e2; color:#b91c1c; padding:4px 11px; border-radius:20px; font-size:11px; font-weight:700; }
+</style>
+{% endblock %}
+{% block layout %}
+{% set active = 'live' %}
+{% include "_admin_sidebar.html" %}
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title"><i class="bi bi-broadcast-pin" style="color:var(--success);"></i> Live Monitor</div>
+      <div class="page-sub">Auto-refreshes every 30 seconds · who's working right now</div>
+    </div>
+  </div>
+
+  <!-- ONLINE -->
+  <div class="card panel">
+    <h3><span class="dot on"></span>Online <span class="count-pill">{{ online_rows|length }}</span></h3>
+    {% if online_rows %}
+    <table>
+      <thead><tr><th>Employee</th><th>Username</th><th>Active</th><th>Idle</th><th>Away from app</th><th>Last seen</th></tr></thead>
+      <tbody>
+      {% for r in online_rows %}
+        <tr>
+          <td><b>{{ r.display_name }}</b></td>
+          <td>@{{ r.username }}</td>
+          <td>{{ r.active_today }}</td>
+          <td>{{ r.idle_today }}{% if r.idle_events %} <span class="pill pill-gray">×{{ r.idle_events }}</span>{% endif %}</td>
+          <td>{{ r.away_today }}{% if r.away_events %} <span class="pill pill-amber">×{{ r.away_events }}</span>{% endif %}</td>
+          <td>{{ r.last_active }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p style="color:var(--muted);text-align:center;padding:18px;">Nobody is online right now.</p>{% endif %}
+  </div>
+
+  <!-- INACTIVE (red) -->
+  <div class="card panel" style="border-color:#fecaca;">
+    <h3 style="color:#b91c1c;"><i class="bi bi-mouse2-fill"></i> Inactive — no mouse/keyboard input
+      <span class="count-pill" style="background:#fee2e2;color:#b91c1c;">{{ idle_rows|length }}</span></h3>
+    {% if idle_rows %}
+    <table>
+      <thead><tr><th>Employee</th><th>Username</th><th>Inactive for</th><th>Active today</th><th>Idle today</th><th>Away from app</th><th>Last seen</th></tr></thead>
+      <tbody>
+      {% for r in idle_rows %}
+        <tr class="inactive-row">
+          <td><b>{{ r.display_name }}</b></td>
+          <td>@{{ r.username }}</td>
+          <td><span class="red-pill">{{ r.mins_inactive }} min</span></td>
+          <td>{{ r.active_today }}</td>
+          <td>{{ r.idle_today }}{% if r.idle_events %} <span class="pill pill-red">×{{ r.idle_events }}</span>{% endif %}</td>
+          <td>{{ r.away_today }}{% if r.away_events %} <span class="pill pill-amber">×{{ r.away_events }}</span>{% endif %}</td>
+          <td>{{ r.last_active }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p style="color:var(--muted);text-align:center;padding:18px;">Nobody is currently inactive.</p>{% endif %}
+  </div>
+
+  <!-- OFFLINE -->
+  <div class="card panel">
+    <h3><span class="dot off"></span>Offline <span class="count-pill">{{ offline_rows|length }}</span></h3>
+    {% if offline_rows %}
+    <table>
+      <thead><tr><th>Employee</th><th>Username</th><th>Last seen</th></tr></thead>
+      <tbody>
+      {% for r in offline_rows %}
+        <tr>
+          <td><b>{{ r.display_name }}</b></td>
+          <td>@{{ r.username }}</td>
+          <td>{{ r.last_active }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p style="color:var(--muted);text-align:center;padding:18px;">Nobody offline.</p>{% endif %}
+  </div>
+
+  <div class="card" style="background:#fffbeb;border-color:#fde68a;">
+    <p style="font-size:13px;color:#92400e;margin:0;">
+      <i class="bi bi-info-circle"></i>
+      <b>"Away from app"</b> = the tracker tab lost focus or was hidden (e.g. they
+      switched to another tab, video, game, or app). A web page can detect this much
+      but, due to browser security, <b>cannot identify which other site or app they
+      switched to</b>. To track Netflix / YouTube / games specifically you would need
+      a browser extension or a desktop agent installed on the employee's machine.
+    </p>
+  </div>
+</main>
+{% endblock %}

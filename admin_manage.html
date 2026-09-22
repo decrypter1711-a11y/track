@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Manage {{ emp.display_name }} – sugar.relax{% endblock %}
+
+{% block layout %}
+{% set active = 'employees' %}
+{% include "_admin_sidebar.html" %}
+
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">
+        <span class="dot {{ 'on' if emp.online else 'off' }}"></span>
+        {{ emp.display_name }}
+      </div>
+      <div class="page-sub">@{{ emp.username }} · {{ emp.email }}</div>
+    </div>
+
+    <a href="/admin-employees" class="btn btn-ghost">
+      <i class="bi bi-arrow-left"></i>
+      Back to employees
+    </a>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for m in messages %}
+        <div class="flash">{{ m }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="grid grid-2" style="align-items:start;">
+
+    <div class="card">
+      <h3 style="margin-bottom:6px;">Edit Activity</h3>
+
+      <p class="page-sub" style="margin-bottom:16px;">
+        Manually correct tracked time for a date.
+      </p>
+
+      <form method="POST" action="/admin/manage/{{ emp.id }}/activity">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+        <div class="field">
+          <label>Date</label>
+          <input type="date" name="date" value="{{ date_str }}">
+        </div>
+
+        <div class="grid grid-3">
+          <div class="field">
+            <label>Active (minutes)</label>
+            <input type="number" name="active_minutes" min="0" step="1" value="{{ active_minutes }}">
+          </div>
+
+          <div class="field">
+            <label>Idle (minutes)</label>
+            <input type="number" name="idle_minutes" min="0" step="1" value="{{ idle_minutes }}">
+          </div>
+
+          <div class="field">
+            <label>Idle count</label>
+            <input type="number" name="idle_events" min="0" step="1" value="{{ idle_events }}">
+          </div>
+        </div>
+
+        <label style="display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:16px;">
+          <input type="checkbox" name="mark_all_active" value="1" style="width:auto;">
+          Mark all idle time as active
+        </label>
+
+        <button class="btn">
+          <i class="bi bi-save"></i>
+          Save Activity
+        </button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:6px;">Add Update (on behalf)</h3>
+
+      <p class="page-sub" style="margin-bottom:16px;">
+        Post a progress update for this employee.
+      </p>
+
+      <form method="POST" action="/admin/manage/{{ emp.id }}/add-update">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+        <div class="field">
+          <textarea
+            name="work_update"
+            rows="5"
+            placeholder="Work update on behalf of {{ emp.display_name }}…"
+            required></textarea>
+        </div>
+
+        <button class="btn btn-success">
+          <i class="bi bi-plus-square"></i>
+          Add Update
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3 style="margin-bottom:6px;">
+      <i class="bi bi-filetype-pdf" style="color:#dc2626;"></i>
+      Download PDF Report
+    </h3>
+
+    <p class="page-sub" style="margin-bottom:16px;">
+      Download {{ emp.display_name }}'s work updates report.
+    </p>
+
+    <div class="grid grid-3">
+
+      <form method="GET" action="/admin/download-updates-pdf/{{ emp.id }}">
+        <div class="field">
+          <label>Single day</label>
+          <input type="date" name="day" required>
+        </div>
+        <button class="btn">
+          <i class="bi bi-download"></i>
+          Download day PDF
+        </button>
+      </form>
+
+      <form method="GET" action="/admin/download-updates-pdf/{{ emp.id }}">
+        <div class="field">
+          <label>Whole month</label>
+          <input type="month" name="month" required>
+        </div>
+        <button class="btn">
+          <i class="bi bi-download"></i>
+          Download month PDF
+        </button>
+      </form>
+
+      <form method="GET" action="/admin/download-updates-pdf/{{ emp.id }}">
+        <div class="field">
+          <label>Last N days</label>
+          <input type="number" name="days" min="1" max="365" value="7" required>
+        </div>
+        <button class="btn">
+          <i class="bi bi-download"></i>
+          Download range PDF
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3 style="margin-bottom:14px;">Updates ({{ updates|length }})</h3>
+
+    {% if updates %}
+
+      <div class="grid" style="gap:12px;">
+
+        {% for u in updates %}
+
+          <div class="card" style="box-shadow:none;background:#f9fbff;">
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+              <span class="pill pill-gray">
+                <i class="bi bi-clock"></i>
+                {{ u.date_str }}
+              </span>
+
+              <span>
+                {% if u.admin_added %}
+                  <span class="pill pill-amber">Added by admin</span>
+                {% endif %}
+
+                {% if u.edited_by_admin %}
+                  <span class="pill pill-amber">Edited by admin</span>
+                {% endif %}
+              </span>
+            </div>
+
+            <form method="POST" action="/admin/edit-update/{{ u.id }}" style="margin-bottom:8px;">
+              <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+              <input type="hidden" name="employee_id" value="{{ emp.id }}">
+
+              <textarea name="work_update" rows="3" style="margin-bottom:10px;">{{ u.work_update }}</textarea>
+
+              {% if u.attachments %}
+
+                <div style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;">
+
+                  {% for file in u.attachments %}
+
+                    {% if file.type in ['png', 'jpg', 'jpeg', 'gif'] %}
+
+                      <a href="{{ url_for('static', filename=file.path) }}" target="_blank">
+                        <img
+                          src="{{ url_for('static', filename=file.path) }}"
+                          alt="{{ file.filename }}"
+                          style="width:110px;height:80px;object-fit:cover;border-radius:10px;border:1px solid var(--border);">
+                      </a>
+
+                    {% else %}
+
+                      <a
+                        href="{{ url_for('static', filename=file.path) }}"
+                        target="_blank"
+                        class="pill pill-gray"
+                        style="text-decoration:none;">
+
+                        <i class="bi bi-paperclip"></i>
+                        {{ file.filename }}
+
+                      </a>
+
+                    {% endif %}
+
+                  {% endfor %}
+
+                </div>
+
+              {% endif %}
+
+              <button class="btn btn-sm">
+                <i class="bi bi-pencil"></i>
+                Save Edit
+              </button>
+            </form>
+
+            <form method="POST" action="/admin/delete-update/{{ u.id }}" onsubmit="return confirm('Delete this update?');">
+              <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+              <input type="hidden" name="employee_id" value="{{ emp.id }}">
+
+              <button class="btn btn-danger btn-sm">
+                <i class="bi bi-trash"></i>
+                Delete
+              </button>
+            </form>
+
+          </div>
+
+        {% endfor %}
+
+      </div>
+
+    {% else %}
+
+      <p style="color:var(--muted);text-align:center;padding:24px;">
+        This employee has no updates yet.
+      </p>
+
+    {% endif %}
+  </div>
+
+</main>
+{% endblock %}

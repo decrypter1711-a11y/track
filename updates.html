@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}My Updates – sugar.relax{% endblock %}
+
+{% block head %}
+<meta http-equiv="refresh" content="60">
+{% endblock %}
+
+{% block layout %}
+{% set active = 'updates' %}
+{% include "_emp_sidebar.html" %}
+
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">My Updates</div>
+      <div class="page-sub">Everything you've logged</div>
+    </div>
+
+    <span id="progress-timer" class="ok">Loading timer…</span>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for m in messages %}
+        <div class="flash">{{ m }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if updates %}
+
+    <div class="grid" style="gap:14px;">
+
+      {% for u in updates %}
+
+        <div class="card">
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span class="pill pill-gray">
+              <i class="bi bi-clock"></i>
+              {{ u.date_str }}
+            </span>
+          </div>
+
+          <div style="font-size:15px;line-height:1.55;">
+            {{ u.work_update }}
+          </div>
+
+          {% if u.attachments %}
+
+            <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+
+              {% for file in u.attachments %}
+
+                {% if file.type in ['png', 'jpg', 'jpeg', 'gif'] %}
+
+                  <a href="{{ url_for('static', filename=file.path) }}" target="_blank">
+                    <img
+                      src="{{ url_for('static', filename=file.path) }}"
+                      alt="{{ file.filename }}"
+                      style="width:120px;height:90px;object-fit:cover;border-radius:10px;border:1px solid var(--border);">
+                  </a>
+
+                {% else %}
+
+                  <a
+                    href="{{ url_for('static', filename=file.path) }}"
+                    target="_blank"
+                    class="pill pill-gray"
+                    style="text-decoration:none;">
+
+                    <i class="bi bi-paperclip"></i>
+                    {{ file.filename }}
+
+                  </a>
+
+                {% endif %}
+
+              {% endfor %}
+
+            </div>
+
+          {% endif %}
+
+        </div>
+
+      {% endfor %}
+
+    </div>
+
+  {% else %}
+
+    <div class="card">
+      <p style="color:var(--muted);text-align:center;padding:30px;">
+        No updates yet.
+        <a href="/add-update">Add your first one</a>.
+      </p>
+    </div>
+
+  {% endif %}
+
+</main>
+{% endblock %}
